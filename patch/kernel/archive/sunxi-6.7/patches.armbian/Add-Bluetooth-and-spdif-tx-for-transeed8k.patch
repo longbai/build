@@ -14,14 +14,14 @@ Signed-off-by: root <root@dino2.dhome>
  create mode 100644 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-spdif-out.dtso
 
 diff --git a/arch/arm64/boot/dts/allwinner/overlay/Makefile b/arch/arm64/boot/dts/allwinner/overlay/Makefile
-index 3121036f25fa..2f69d4909bbd 100644
+index 76a4952e3ecc..f04f2eb387f7 100644
 --- a/arch/arm64/boot/dts/allwinner/overlay/Makefile
 +++ b/arch/arm64/boot/dts/allwinner/overlay/Makefile
 @@ -53,6 +53,7 @@ dtb-$(CONFIG_ARCH_SUNXI) += \
- 	sun50i-h616-i2c4.dtbo \
- 	sun50i-h616-uart2.dtbo \
- 	sun50i-h616-uart5.dtbo \
-+	sun50i-h616-spdif-out.dtbo \
+ 	sun50i-h616-i2c4-ph.dtbo \
+ 	sun50i-h616-uart2-ph.dtbo \
+ 	sun50i-h616-uart5-ph.dtbo \
++        sun50i-h616-spdif-out.dtbo \
  	sun50i-h616-spi-spidev.dtbo \
  	sun50i-h616-spidev0_0.dtbo \
  	sun50i-h616-spidev1_0.dtbo \
