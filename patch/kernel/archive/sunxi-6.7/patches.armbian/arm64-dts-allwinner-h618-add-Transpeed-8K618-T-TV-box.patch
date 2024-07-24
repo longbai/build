@@ -30,16 +30,16 @@ Signed-off-by: Andre Przywara <andre.przywara@arm.com>
  create mode 100644 arch/arm64/boot/dts/allwinner/sun50i-h618-transpeed-8k618-t.dts
 
 diff --git a/arch/arm64/boot/dts/allwinner/Makefile b/arch/arm64/boot/dts/allwinner/Makefile
-index abd85a78bfb9..387f418f273d 100644
+index fc7dde9079fc..4760ea378bdd 100644
 --- a/arch/arm64/boot/dts/allwinner/Makefile
 +++ b/arch/arm64/boot/dts/allwinner/Makefile
-@@ -57,5 +57,6 @@ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h616-x96-mate.dtb
- dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h616-bigtreetech-cb1-sd.dtb
- dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h616-bigtreetech-cb1-emmc.dtb
+@@ -59,5 +59,6 @@ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h616-bigtreetech-cb1-emmc.dtb
+ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h618-bananapi-m4-zero.dtb
  dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h618-orangepi-zero3.dtb
+ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h618-orangepi-zero2w.dtb
 +dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h618-transpeed-8k618-t.dtb
  
- subdir-y	:= $(dts-dirs) overlay
+ subdir-y       := $(dts-dirs) overlay
 diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h616.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-h616.dtsi
 index 5b950b612ce3..582f62f75367 100644
 --- a/arch/arm64/boot/dts/allwinner/sun50i-h616.dtsi
