@@ -8,10 +8,10 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.7/arch/arm64/b
 +dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h616-vontar-h618.dtb
 
  subdir-y       := $(dts-dirs) overlay
-diff --speed-large-files --no-dereference --minimal -Naur linux-6.6/arch/arm64/boot/dts/allwinner/sun50i-h616-vontar-h618.dts linux-6.7/arch/arm64/boot/dts/allwinner/sun50i-h616-vontar-h618.dts
+diff --speed-large-files --no-dereference --minimal -Naur linux-6.7/arch/arm64/boot/dts/allwinner/sun50i-h616-vontar-h618.dts linux-6.7/arch/arm64/boot/dts/allwinner/sun50i-h616-vontar-h618.dts
 --- linux-6.7/arch/arm64/boot/dts/allwinner/sun50i-h616-vontar-h618.dts	1970-01-01 01:00:00.000000000 +0100
 +++ linux-6.7/arch/arm64/boot/dts/allwinner/sun50i-h616-vontar-h618.dts	2023-10-28 15:36:45.836680768 +0200
-@@ -0,0 +1,314 @@
+@@ -0,0 +1,457 @@
 +// SPDX-License-Identifier: (GPL-2.0+ or MIT)
 +/*
 + * Author: piotr.oniszczuk@gmail.com
@@ -21,6 +21,8 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.6/arch/arm64/b
 +
 +#include "sun50i-h616.dtsi"
 +#include "sun50i-h616-cpu-opp.dtsi"
++#include "sun50i-h618-cpu-dvfs.dtsi"
++
 +#include <dt-bindings/gpio/gpio.h>
 +#include <dt-bindings/interrupt-controller/arm-gic.h>
 +#include <dt-bindings/leds/common.h>
@@ -91,6 +93,66 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.6/arch/arm64/b
 +		pinctrl-0 = <&x32clk_fanout_pin>; /* PG10 with MUX3 set */
 +	};
 +
++	ac200_pwm_clk: ac200_clk {
++		compatible = "pwm-clock";
++		#clock-cells = <0>;
++		// pwm5 period_ns = 500 > 334 for select 24M clock.
++		pwms = <&pwm 5 500 0>;
++		clock-frequency = <2000000>;
++		status = "okay";
++	};
++
++	soc {
++		pwm: pwm@300a000 {
++			compatible = "allwinner,sun50i-h616-pwm";
++			reg = <0x0300a000 0x400>;
++			clocks = <&osc24M>, <&ccu CLK_BUS_PWM>;
++			clock-names = "mod", "bus";
++			resets = <&ccu RST_BUS_PWM>;
++			pwm-number = <6>;
++			pwm-base = <0x0>;
++			sunxi-pwms = <&pwm0>, <&pwm1>, <&pwm2>, <&pwm3>, <&pwm4>, <&pwm5>;
++			#pwm-cells = <3>;
++			status = "okay";
++		};
++
++		pwm0: pwm0@0300a000 {
++			compatible = "allwinner,sunxi-pwm0";
++		};
++
++		pwm1: pwm1@0300a000 {
++			compatible = "allwinner,sunxi-pwm1";
++			pinctrl-names = "default";
++			pinctrl-0 = <&pwm1_ph_pin>;
++		};
++
++		pwm2: pwm2@0300a000 {
++			compatible = "allwinner,sunxi-pwm2";
++			pinctrl-names = "default";
++			pinctrl-0 = <&pwm2_ph_pin>;
++		};
++
++		pwm3: pwm3@0300a000 {
++			compatible = "allwinner,sunxi-pwm3";
++			pinctrl-names = "default";
++			pinctrl-0 = <&pwm3_ph_pin>;
++		};
++
++		pwm4: pwm4@0300a000 {
++			compatible = "allwinner,sunxi-pwm4";
++			pinctrl-names = "default";
++			pinctrl-0 = <&pwm4_ph_pin>;
++		};
++
++		pwm5: pwm5@0300a000 {
++			compatible = "allwinner,sunxi-pwm5";
++			pinctrl-names = "default";
++			pinctrl-0 = <&pwm5_pin>;
++			clk_bypass_output = <0x1>;
++			status = "okay";
++		};
++	};
++
 +	openvfd {
 +		compatible = "open,vfd";
 +		dev_name = "openvfd";
@@ -102,6 +164,12 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.6/arch/arm64/b
 +		openvfd_display_type = <0x03000000>;
 +		status = "okay";
 +	};
++};
++
++&sid {
++        ephy_calibration: ephy-calibration@2c {
++                reg = <0x2c 0x2>;
++        };
 +};
 +
 +&cpu0 {
@@ -147,6 +215,49 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.6/arch/arm64/b
 +
 +&i2c3 {
 +	status = "okay";
++        ac200_x: mfd@10 {
++                compatible = "x-powers,ac200-sunxi";
++                reg = <0x10>;
++                clocks = <&ac200_pwm_clk>;
++                // ephy id
++                nvmem-cells = <&ephy_calibration>;
++                nvmem-cell-names = "calibration";
++
++                ac200_ephy: phy {
++                        compatible = "x-powers,ac200-ephy-sunxi";
++                        status = "okay";
++                };
++        };
++};
++
++&emac0 {
++        compatible = "allwinner,sunxi-gmac";
++        reg = <0x05030000 0x10000>,
++                <0x03000030 0x4>;
++        reg-names = "gmac0_reg","ephy_reg";
++        interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
++        interrupt-names = "gmacirq";
++        resets = <&ccu RST_BUS_EMAC0>;
++        reset-names = "stmmaceth";
++        clocks = <&ccu CLK_BUS_EMAC0>,<&ccu CLK_EMAC_25M>;
++        clock-names = "bus-emac0","emac-25m";
++        pinctrl-0 = <&ext_rgmii_pins>;
++        pinctrl-names = "default";
++        tx-delay = <6>;
++        rx-delay = <0>;
++        phy-rst;
++        gmac-power0;
++        gmac-power1;
++        gmac-power2;
++        status = "disabled";
++        phy-handle = <&rgmii_phy>;
++};
++
++&mdio0 {
++        rgmii_phy: ethernet-phy@0 {
++                compatible = "ethernet-phy-ieee802.3-c22";
++                reg = <0>;
++        };
 +};
 +
 +&emac1 {
@@ -154,16 +265,16 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.6/arch/arm64/b
 +	pinctrl-0 = <&rmii_pins>;
 +	phy-mode = "rmii";
 +	phy-handle = <&rmii_phy>;
-+	phy-supply = <&reg_aldo1>;
++	phy-supply = <&reg_dldo1>;
 +	allwinner,rx-delay-ps = <3100>;
 +	allwinner,tx-delay-ps = <700>;
 +	status = "okay";
 +};
 +
 +&mdio1 {
-+	rmii_phy: ethernet-phy@0 {
++	rmii_phy: ethernet-phy@1 {
 +		compatible = "ethernet-phy-ieee802.3-c22";
-+		reg = <0>;
++		reg = <1>;
 +	};
 +};
 +
@@ -324,6 +435,38 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.6/arch/arm64/b
 +
 +&ahub1_mach {
 +	status = "okay";
++};
++
++&pio {
++       /omit-if-no-ref/
++       pwm1_ph_pin: pwm1-ph-pin {
++               pins = "PH3";
++               function = "pwm1";
++       };
++
++       /omit-if-no-ref/
++       pwm2_ph_pin: pwm2-ph-pin {
++               pins = "PH2";
++               function = "pwm2";
++       };
++
++       /omit-if-no-ref/
++       pwm3_ph_pin: pwm3-ph-pin {
++               pins = "PH0";
++               function = "pwm3";
++       };
++
++       /omit-if-no-ref/
++       pwm4_ph_pin: pwm4-ph-pin {
++               pins = "PH1";
++               function = "pwm4";
++       };
++
++       /omit-if-no-ref/
++       pwm5_pin: pwm5-pin {
++               pins = "PA12";
++               function = "pwm5";
++       };
 +};
 +
 --
