@@ -11,7 +11,7 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.7/arch/arm64/b
 diff --speed-large-files --no-dereference --minimal -Naur linux-6.7/arch/arm64/boot/dts/allwinner/sun50i-h616-vontar-h618.dts linux-6.7/arch/arm64/boot/dts/allwinner/sun50i-h616-vontar-h618.dts
 --- linux-6.7/arch/arm64/boot/dts/allwinner/sun50i-h616-vontar-h618.dts	1970-01-01 01:00:00.000000000 +0100
 +++ linux-6.7/arch/arm64/boot/dts/allwinner/sun50i-h616-vontar-h618.dts	2023-10-28 15:36:45.836680768 +0200
-@@ -0,0 +1,457 @@
+@@ -0,0 +1,494 @@
 +// SPDX-License-Identifier: (GPL-2.0+ or MIT)
 +/*
 + * Author: piotr.oniszczuk@gmail.com
@@ -52,6 +52,20 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.7/arch/arm64/b
 +				remote-endpoint = <&hdmi_out_con>;
 +			};
 +		};
++	};
++
++	reg_pio_18: pio_18 {
++		compatible = "regulator-fixed";
++		regulator-name = "pio-18";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++	};
++
++	reg_pio_33: pio_33 {
++		compatible = "regulator-fixed";
++		regulator-name = "pio-33";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
 +	};
 +
 +	reg_vcc5v: vcc5v {
@@ -116,35 +130,35 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.7/arch/arm64/b
 +			status = "okay";
 +		};
 +
-+		pwm0: pwm0@0300a000 {
++		pwm0: pwm0@0300a010 {
 +			compatible = "allwinner,sunxi-pwm0";
 +		};
 +
-+		pwm1: pwm1@0300a000 {
++		pwm1: pwm1@0300a011 {
 +			compatible = "allwinner,sunxi-pwm1";
 +			pinctrl-names = "default";
 +			pinctrl-0 = <&pwm1_ph_pin>;
 +		};
 +
-+		pwm2: pwm2@0300a000 {
++		pwm2: pwm2@0300a012 {
 +			compatible = "allwinner,sunxi-pwm2";
 +			pinctrl-names = "default";
 +			pinctrl-0 = <&pwm2_ph_pin>;
 +		};
 +
-+		pwm3: pwm3@0300a000 {
++		pwm3: pwm3@0300a013 {
 +			compatible = "allwinner,sunxi-pwm3";
 +			pinctrl-names = "default";
 +			pinctrl-0 = <&pwm3_ph_pin>;
 +		};
 +
-+		pwm4: pwm4@0300a000 {
++		pwm4: pwm4@0300a014 {
 +			compatible = "allwinner,sunxi-pwm4";
 +			pinctrl-names = "default";
 +			pinctrl-0 = <&pwm4_ph_pin>;
 +		};
 +
-+		pwm5: pwm5@0300a000 {
++		pwm5: pwm5@0300a015 {
 +			compatible = "allwinner,sunxi-pwm5";
 +			pinctrl-names = "default";
 +			pinctrl-0 = <&pwm5_pin>;
@@ -164,6 +178,16 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.7/arch/arm64/b
 +		openvfd_display_type = <0x03000000>;
 +		status = "okay";
 +	};
++};
++
++&ext_rgmii_pins {
++       drive-strength = <30>;
++       bias-pull-up;
++};
++
++&rmii_pins {
++	drive-strength = <10>;
++	bias-pull-up;
 +};
 +
 +&sid {
@@ -229,10 +253,10 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.7/arch/arm64/b
 +                };
 +        };
 +};
-+
++/*
 +&emac0 {
 +        compatible = "allwinner,sunxi-gmac";
-+        reg = <0x05030000 0x10000>,
++        reg = <0x05020000 0x10000>,
 +                <0x03000030 0x4>;
 +        reg-names = "gmac0_reg","ephy_reg";
 +        interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
@@ -251,14 +275,19 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.7/arch/arm64/b
 +        gmac-power2;
 +        status = "disabled";
 +        phy-handle = <&rgmii_phy>;
++	device_type = "gmac0";
++       phy-supply = <&reg_dldo10>;
 +};
 +
 +&mdio0 {
-+        rgmii_phy: ethernet-phy@0 {
++	compatible = "ethernet-phy-ieee802.3-c22";
++	#address-cells = <0x01>;
++	#size-cells = <0x00>;
++        rgmii_phy: ethernet-phy@1 {
 +                compatible = "ethernet-phy-ieee802.3-c22";
-+                reg = <0>;
++                reg = <1>;
 +        };
-+};
++};*/
 +
 +&emac1 {
 +	pinctrl-names = "default";
@@ -268,13 +297,15 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.7/arch/arm64/b
 +	phy-supply = <&reg_dldo1>;
 +	allwinner,rx-delay-ps = <3100>;
 +	allwinner,tx-delay-ps = <700>;
++	bias-pull-up;
 +	status = "okay";
++	device_type = "gmac1";
 +};
 +
 +&mdio1 {
-+	rmii_phy: ethernet-phy@1 {
++	rmii_phy: ethernet-phy@0 {
 +		compatible = "ethernet-phy-ieee802.3-c22";
-+		reg = <1>;
++		reg = <0>;
 +	};
 +};
 +
@@ -438,6 +469,10 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.7/arch/arm64/b
 +};
 +
 +&pio {
++       vcc-pf-supply = <&reg_pio_18>;
++       vcc-pfo-supply = <&reg_pio_33>;
++       vcc-pg-supply = <&reg_pio_18>;
++
 +       /omit-if-no-ref/
 +       pwm1_ph_pin: pwm1-ph-pin {
 +               pins = "PH3";
@@ -462,11 +497,13 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.7/arch/arm64/b
 +               function = "pwm4";
 +       };
 +
-+       /omit-if-no-ref/
 +       pwm5_pin: pwm5-pin {
 +               pins = "PA12";
 +               function = "pwm5";
++		drive-strength = <10>;
++		bias-pull-up;
 +       };
++
 +};
 +
 --
