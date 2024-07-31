@@ -11,7 +11,7 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.7/arch/arm64/b
 diff --speed-large-files --no-dereference --minimal -Naur linux-6.7/arch/arm64/boot/dts/allwinner/sun50i-h616-vontar-h618.dts linux-6.7/arch/arm64/boot/dts/allwinner/sun50i-h616-vontar-h618.dts
 --- linux-6.7/arch/arm64/boot/dts/allwinner/sun50i-h616-vontar-h618.dts	1970-01-01 01:00:00.000000000 +0100
 +++ linux-6.7/arch/arm64/boot/dts/allwinner/sun50i-h616-vontar-h618.dts	2023-10-28 15:36:45.836680768 +0200
-@@ -0,0 +1,494 @@
+@@ -0,0 +1,498 @@
 +// SPDX-License-Identifier: (GPL-2.0+ or MIT)
 +/*
 + * Author: piotr.oniszczuk@gmail.com
@@ -359,6 +359,10 @@ diff --speed-large-files --no-dereference --minimal -Naur linux-6.7/arch/arm64/b
 +
 +&r_i2c {
 +	status = "okay";
++	pinctrl-0 = <&r_i2c_pins>;
++	pinctrl-1 = <&r_rsb_pins>;
++	pinctrl-names = "default", "sleep";
++	no_suspend = <1>;
 +
 +	axp313a: pmic@36 {
 +		compatible = "x-powers,axp313a";
